@@ -2,8 +2,11 @@
 
 namespace App\SlashCommands;
 
+use Illuminate\Support\Str;
+
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\Interactions\Command\Option;
+
 use Laracord\Commands\SlashCommand;
 
 use App\Models\Embeds;
@@ -61,7 +64,7 @@ class SetEmbed extends SlashCommand
             'required' => false,
         ],
         [
-            'name' => 'link_url',
+            'name' => 'linkurl',
             'description' => 'Embed title URL.',
             'type' => Option::STRING,
             'required' => false,
@@ -73,14 +76,26 @@ class SetEmbed extends SlashCommand
             'required' => false,
         ],
         [
-            'name' => 'image_url',
+            'name' => 'imageurl',
             'description' => 'Url for embedded image',
             'type' => Option::STRING,
             'required' => false,
         ],
         [
-            'name' => 'thumbnail_url',
+            'name' => 'thumbnailurl',
             'description' => 'Url for thumbnail image.',
+            'type' => Option::STRING,
+            'required' => false,
+        ],
+        [
+            'name' => 'footercontent',
+            'description' => 'Content of the footer.',
+            'type' => Option::STRING,
+            'required' => false,
+        ],
+        [
+            'name' => 'footerurl',
+            'description' => 'Url of the footer link',
             'type' => Option::STRING,
             'required' => false,
         ],
@@ -100,6 +115,7 @@ class SetEmbed extends SlashCommand
      */
     protected $admin = false;
 
+//    protected $guild = '905167903224123473';
     /**
      * Indicates whether the command should be displayed in the commands list.
      *
@@ -124,10 +140,13 @@ class SetEmbed extends SlashCommand
         $contentBuffer      = $this->value('content',       $default );
         $bodyBuffer         = $this->value('body',          $default );
         $color              = $this->value('color',         $default );
-        $linkBuffer         = $this->value('link_url',      $default );
+        $linkBuffer         = $this->value('linkurl',      $default );
         $timestamp          = $this->value('timestamp',     $default );
-        $imageUrlBuffer     = $this->value('image_url',     $default );
-        $thumbnailUrlBuffer = $this->value('thumbnail_url', $default );
+        $imageUrlBuffer     = $this->value('imageurl',     $default );
+        $thumbnailUrlBuffer = $this->value('thumbnailurl', $default );
+        $footerContent      = $this->value('footercontent', $default );
+        $footerUrl          = $this->value('footerurl', $default );
+
         $template_name      = $this->value('template', $default = 'default template' );
 
         $message =
@@ -145,10 +164,27 @@ class SetEmbed extends SlashCommand
 
         $embed->template = $template_name;
 
+        $values = collect ([
+            'title'             => Str::is('null', $titleBuffer)    ? ' ' : $titleBuffer,
+            'content'           => Str::is('null', $contentBuffer)  ? ' ' : $contentBuffer,
+            'body'              => Str::is('null', $bodyBuffer)     ? ' ' : $bodyBuffer,
+            'color'             => $color,
+            'link_url'          => Str::isUrl($linkBuffer)          ? $linkBuffer : '',
+            'timestamp'         => $timestamp,
+            'image_url'         => Str::isUrl($imageUrlBuffer)      ? $imageUrlBuffer : '',
+            'thumbnail_url'     => Str::isUrl($thumbnailUrlBuffer)  ? $thumbnailUrlBuffer : '',
+            'footer_content'    => Str::is('null', $footerContent)  ? ' ' : $footerContent,
+            'footer_url'        => Str::isUrl($footerUrl)           ? $footerUrl : '',
+        ])->filter();
+
+        $embed->update($values->all());
+        $message->title('Updated template!');
+        $message->content("Changed:\n" . $values->map(fn ($value, $key) => "**{$key}**: {$value}")->implode("\n"));
+
+/*
         $message
             ->title("$template_name")
             ->content('Edited embed with name ' . $template_name . ' for user ' . $userName . ' with ID ' . $userID . ' !')
-            ->body("<@$userID>")
             ->success();
 
             if ( ! is_null ( $titleBuffer ) )
@@ -169,17 +205,16 @@ class SetEmbed extends SlashCommand
             if ( ! is_null ( $timestamp ) )
                 $embed->timestamp = $timestamp;
 
-            if ( ! is_null ( $imageUrlBuffer ) )
+            if ( ! is_null ( $imageUrlBuffer ) && Str::isUrl($imageUrlBuffer) )
                 $embed->image_url = $imageUrlBuffer;
+            else if ( ! is_null ( $imageUrlBuffer ) )
+                $embed->image_url = 'https://evelin.pink/null';
 
             if ( ! is_null ( $thumbnailUrlBuffer ) )
                 $embed->thumbnail_url = $thumbnailUrlBuffer;
 
             $embed->save();
-
-        $interaction->respondWithMessage(
-            $message
-                ->build()
-        );
+ */
+            $message->reply($interaction, true);
     }
 }

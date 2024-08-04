@@ -24,5 +24,18 @@ class Embeds extends Model
         'timestamp' => true,
     ];
 
-    protected $fillable = ['discord_id'];
+    protected $fillable = [
+        'discord_id',
+        'template',
+        'title',
+        'content',
+        'body',
+        'link_url',
+        'color',
+        'footer_content',
+        'footer_url',
+        'image_url',
+        'thumbnail_url',
+        'timestamp',
+    ];
 }

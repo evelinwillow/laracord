@@ -9,7 +9,7 @@ use Laracord\Commands\SlashCommand;
 
 use App\Models\Embeds;
 
-class build_embed extends SlashCommand
+class BuildEmbed extends SlashCommand
 {
     /**
      * The command name.
@@ -175,8 +175,6 @@ class build_embed extends SlashCommand
         ];
 
     }
-
-
 
     protected function collapse (Interaction $interaction) : void
     {

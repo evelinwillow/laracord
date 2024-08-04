@@ -8,7 +8,7 @@ use Laracord\Commands\SlashCommand;
 
 use App\Models\Embeds;
 
-class set_embed extends SlashCommand
+class SetEmbed extends SlashCommand
 {
     /**
      * The command name.

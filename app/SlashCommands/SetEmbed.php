@@ -175,46 +175,20 @@ class SetEmbed extends SlashCommand
             'thumbnail_url'     => Str::isUrl($thumbnailUrlBuffer)  ? $thumbnailUrlBuffer : '',
             'footer_content'    => Str::is('null', $footerContent)  ? ' ' : $footerContent,
             'footer_url'        => Str::isUrl($footerUrl)           ? $footerUrl : '',
-        ])->filter();
+        ])->filter( fn ($value) => filled($value));
 
         $embed->update($values->all());
-        $message->title('Updated template!');
-        $message->content("Changed:\n" . $values->map(fn ($value, $key) => "**{$key}**: {$value}")->implode("\n"));
 
-/*
+        $values = $values
+            ->map(fn ($value) => is_bool($value) ? ($value ? 'True' : 'False') : $value)
+            ->map(fn ($value, $key) => "**{$key}**: {$value}")
+            ->implode("\n");
+
+
         $message
-            ->title("$template_name")
-            ->content('Edited embed with name ' . $template_name . ' for user ' . $userName . ' with ID ' . $userID . ' !')
-            ->success();
+            ->title('Updated template!')
+            ->content("Changed:\n{$values}");
 
-            if ( ! is_null ( $titleBuffer ) )
-                $embed->title = $titleBuffer;
-
-            if ( ! is_null ( $contentBuffer ) )
-                $embed->content = $contentBuffer;
-
-            if ( ! is_null ( $bodyBuffer ) )
-                $embed->body = $bodyBuffer;
-
-            if ( ! is_null ( $color ) )
-                $embed->color = $color;
-
-            if ( ! is_null ( $linkBuffer ) )
-                $embed->link_url = $linkBuffer;
-
-            if ( ! is_null ( $timestamp ) )
-                $embed->timestamp = $timestamp;
-
-            if ( ! is_null ( $imageUrlBuffer ) && Str::isUrl($imageUrlBuffer) )
-                $embed->image_url = $imageUrlBuffer;
-            else if ( ! is_null ( $imageUrlBuffer ) )
-                $embed->image_url = 'https://evelin.pink/null';
-
-            if ( ! is_null ( $thumbnailUrlBuffer ) )
-                $embed->thumbnail_url = $thumbnailUrlBuffer;
-
-            $embed->save();
- */
             $message->reply($interaction, true);
     }
 }

@@ -16,7 +16,7 @@ class BuildEmbed extends SlashCommand
      *
      * @var string
      */
-    protected $name = 'build_embed';
+    protected $name = 'buildembed';
 
     /**
      * The guild the command belongs to.

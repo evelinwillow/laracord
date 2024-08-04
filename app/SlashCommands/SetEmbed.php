@@ -15,7 +15,7 @@ class SetEmbed extends SlashCommand
      *
      * @var string
      */
-    protected $name = 'set_embed';
+    protected $name = 'setembed';
 
     /**
      * The command description.

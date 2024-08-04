@@ -72,6 +72,18 @@ class set_embed extends SlashCommand
             'type' => Option::BOOLEAN,
             'required' => false,
         ],
+        [
+            'name' => 'image_url',
+            'description' => 'Url for embedded image',
+            'type' => Option::STRING,
+            'required' => false,
+        ],
+        [
+            'name' => 'thumbnail_url',
+            'description' => 'Url for thumbnail image.',
+            'type' => Option::STRING,
+            'required' => false,
+        ],
     ];
 
     /**
@@ -106,13 +118,17 @@ class set_embed extends SlashCommand
         $userID = $interaction->user->id;
         $userName = $interaction->user->global_name;
 
-        $titleBuffer    = $this->value('title',         $default = null );
-        $contentBuffer  = $this->value('content',       $default = null );
-        $bodyBuffer     = $this->value('body',          $default = null );
-        $color          = $this->value('color',         $default = null );
-        $linkBuffer     = $this->value('link_url',      $default = null );
-        $timestamp      = $this->value('timestamp',     $default = null );
-        $template_name  = $this->value('template', $default = 'default template' );
+        $default = null;
+
+        $titleBuffer        = $this->value('title',         $default );
+        $contentBuffer      = $this->value('content',       $default );
+        $bodyBuffer         = $this->value('body',          $default );
+        $color              = $this->value('color',         $default );
+        $linkBuffer         = $this->value('link_url',      $default );
+        $timestamp          = $this->value('timestamp',     $default );
+        $imageUrlBuffer     = $this->value('image_url',     $default );
+        $thumbnailUrlBuffer = $this->value('thumbnail_url', $default );
+        $template_name      = $this->value('template', $default = 'default template' );
 
         $message =
             $this
@@ -152,6 +168,12 @@ class set_embed extends SlashCommand
 
             if ( ! is_null ( $timestamp ) )
                 $embed->timestamp = $timestamp;
+
+            if ( ! is_null ( $imageUrlBuffer ) )
+                $embed->image_url = $imageUrlBuffer;
+
+            if ( ! is_null ( $thumbnailUrlBuffer ) )
+                $embed->thumbnail_url = $thumbnailUrlBuffer;
 
             $embed->save();
 

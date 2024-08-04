@@ -6,6 +6,7 @@ use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\Interactions\Command\Option;
 use Laracord\Commands\SlashCommand;
 
+
 use App\Models\Embeds;
 
 class build_embed extends SlashCommand
@@ -16,6 +17,14 @@ class build_embed extends SlashCommand
      * @var string
      */
     protected $name = 'build_embed';
+
+    /**
+     * The guild the command belongs to.
+     *
+     * @var string
+     */
+
+    protected $guild = '905167903224123473';
 
     /**
      * The command description.
@@ -65,28 +74,59 @@ class build_embed extends SlashCommand
      * @param  \Discord\Parts\Interactions\Interaction  $interaction
      * @return mixed
      */
-    public function handle($interaction)
+
+    public function sendStatusMessage ($interaction, $template, $embed)
     {
-        $userID = $interaction->user->id;
+         $statusMessage =
+            $this
+                ->message()
+                ->content("# Embed editor")
+                ->field("Name: ",           $template,                          true)
+                ->field("ID: ",             $embed->id,                         true)
+                ->field(" ",                " ",                                true)
+                ->field("User: ",           $interaction->user->global_name,    true)
+                ->field("ID: ",             $interaction->user->id,             true)
+                ->field(" ",                " ",                                true)
+                ->field("Title: ",          $embed->title,                      true)
+                ->field("Link Url: ",       $embed->link_url,                   true)
+                ->field(" ",                " ",                                true)
+                ->field("Content: ",        $embed->content,                    false)
+                ->field("Color: ",          $embed->color,                      false)
+                ->field(" ",                " ",                                true)
+                ->field(" ",                " ",                                true)
+                ->field(" ",                " ",                                true)
+                ->field("footerText: ",     $embed->footerText,                 false)
+                ->field("footerUrl: ",      $embed->footerUrl,                  true)
+                ->field("imageUrl: ",       $embed->image_url,                  false)
+                ->field("thumbnailUrl: ",   $embed->thumbnail_url,              false)
+                ->button('Collapse',        route: "collapse")
+                ->button('Build',           route:"build:$template");
 
-        $template = $this->value('template', $default = 'default template');
+        $interaction->respondWithMessage(
+            $statusMessage
+                ->build(),
+            ephemeral: true
+        );
+    }
 
-        $embed = Embeds::where('discord_id', $userID)
+    public function sendEmbed ($interaction, $template)
+    {
+        $embed = Embeds::where('discord_id', $interaction->user->id)
             ->where('template', $template)
             ->first();
 
-        $message =
+        $embedMessage =
             $this
                 ->message();
 
         if ( is_null ( $embed ) )
         {
-            $message
+            $embedMessage
                 ->content('No embed with template name ' . $template . ' found!')
-                ->body("<@$userID>")
+                ->body("<@$interaction->user->id>")
                 ->error();
         } else {
-            $message
+            $embedMessage
                 ->title     ( $embed->title     )
                 ->content   ( $embed->content   )
                 ->url       ( $embed->link_url  )
@@ -97,17 +137,51 @@ class build_embed extends SlashCommand
                 ->thumbnailUrl( $embed->thumbnail_url);
 
             if ( $embed->timestamp )
-                $message
+                $embedMessage
                     ->timestamp(now());
 
             if ( ! is_null ( $embed->body ) )
-                $message
+                $embedMessage
                     ->body( $embed->body );
         }
 
-        $interaction->respondWithMessage(
-            $message
-                ->build()
+        $interaction->sendFollowupMessage(
+            $embedMessage
+                ->build(),
+            ephemeral: true
         );
+
+    }
+
+    public function handle($interaction)
+    {
+        $default = 'default template';
+        $template = $this->value('template', $default);
+
+        $embed = Embeds::where('discord_id', $interaction->user->id)
+            ->where('template', $template)
+            ->first();
+
+        $this->sendStatusMessage($interaction, $template, $embed);
+        $this->sendEmbed($interaction, $template, $embed);
+
+    }
+
+    public function interactions(): array
+    {
+        return [
+            'collapse' => fn (Interaction $interaction_button) => $this->collapse($interaction_button),
+            'build' => fn (Interaction $interaction) => $this->collapse($interaction),
+        ];
+
+    }
+
+
+
+    protected function collapse (Interaction $interaction_button) : void
+    {
+            $this
+                ->message('Test')
+                ->send($interaction_button->channel->id);
     }
 }

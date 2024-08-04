@@ -170,7 +170,7 @@ class build_embed extends SlashCommand
     public function interactions(): array
     {
         return [
-            'collapse' => fn (Interaction $interaction_button) => $this->collapse($interaction_button),
+            'collapse' => fn (Interaction $interaction) => $this->collapse($interaction),
             'build' => fn (Interaction $interaction) => $this->collapse($interaction),
         ];
 
@@ -178,10 +178,10 @@ class build_embed extends SlashCommand
 
 
 
-    protected function collapse (Interaction $interaction_button) : void
+    protected function collapse (Interaction $interaction) : void
     {
             $this
                 ->message('Test')
-                ->send($interaction_button->channel->id);
+                ->reply($interaction);
     }
 }

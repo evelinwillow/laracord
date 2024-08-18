@@ -126,7 +126,7 @@ class BuildEmbed extends SlashCommand
     {
         $statusMessage = $this->expandStatusMessage($interaction, $template);
 
-        $statusMessage->editOrReply($interaction);
+        $statusMessage->editOrReply($interaction, true);
     }
 
     public function sendEmbed ($interaction, $template)
